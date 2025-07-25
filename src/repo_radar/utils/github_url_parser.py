@@ -3,7 +3,7 @@ from typing import List
 from repo_radar.models.github_url import GithubUrl
 from repo_radar.config import GITHUB_URL_REGEX
 
-GITHUB_URL_REGEX = re.compile(GITHUB_URL_REGEX)
+regex = re.compile(GITHUB_URL_REGEX)
 
 def extract_github_urls(text: str) -> List[GithubUrl]:
     """
@@ -20,7 +20,7 @@ def extract_github_urls(text: str) -> List[GithubUrl]:
     Returns:
         List[GithubUrl]: A list of `GithubUrl` objects representing each matched URL.
     """
-    matches = GITHUB_URL_REGEX.finditer(text)
+    matches = regex.finditer(text)
     results = []
 
     for match in matches:
