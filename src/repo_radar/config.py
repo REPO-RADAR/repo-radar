@@ -8,3 +8,6 @@ GITHUB_URL_REGEX = (
     r"(?:\.git)?"
     r"(?:\/[^\s]*)?"
 )
+
+# URL for github API
+GITHUB_API_URL = "https://api.github.com"
