@@ -1,9 +1,8 @@
 import re
+from requests import Response
 from typing import List
 from repo_radar.models.github_url import GithubUrl
-from repo_radar.config import GITHUB_URL_REGEX
-
-regex = re.compile(GITHUB_URL_REGEX)
+from repo_radar.config import GITHUB_URL_REGEX, LINK_HEADER_NEXT_REGEX
 
 def extract_github_urls(text: str) -> List[GithubUrl]:
     """
@@ -20,6 +19,7 @@ def extract_github_urls(text: str) -> List[GithubUrl]:
     Returns:
         List[GithubUrl]: A list of `GithubUrl` objects representing each matched URL.
     """
+    regex = re.compile(GITHUB_URL_REGEX)
     matches = regex.finditer(text)
     results = []
 
@@ -30,3 +30,9 @@ def extract_github_urls(text: str) -> List[GithubUrl]:
         results.append(GithubUrl(full_url=full_url, org_user=org_user, repo=repo))
 
     return results
+
+def paginated_has_next(response: Response) -> bool:
+    link_header = response.headers.get("Link", "")
+    if not link_header:
+        return False
+    return bool(re.search(LINK_HEADER_NEXT_REGEX, link_header))

@@ -12,6 +12,8 @@ GITHUB_URL_REGEX = (
     r"(?:\/[^\s]*)?"
 )
 
+LINK_HEADER_NEXT_REGEX = r'<([^>]+)>;\s*rel="next"'
+
 # URLs for github API
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_USER_ENDPOINT = "https://api.github.com/user" # User Endpoint
