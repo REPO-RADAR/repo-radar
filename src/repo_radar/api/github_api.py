@@ -21,7 +21,7 @@ def validate_github_token(token: GitHubToken):
         if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":    # If we get an exception and it's a rate limit, then the token is valid.
             return response.json()
         raise err
-    return response.json()
+    return response
 
 def get_repo_languages(token: GitHubToken, url: GithubUrl) -> dict:
     """
@@ -39,9 +39,9 @@ def get_repo_languages(token: GitHubToken, url: GithubUrl) -> dict:
     """
     response = requests.get(url.api_languages_path(), headers=token.to_header())
     response.raise_for_status()
-    return response.json()
+    return response
 
-def get_licenses(token: GitHubToken, url: GithubUrl):
+def get_license(token: GitHubToken, url: GithubUrl):
     """
     Fetch the licenses used in a GitHub repository.
     
@@ -54,7 +54,7 @@ def get_licenses(token: GitHubToken, url: GithubUrl):
     """
     response = requests.get(url.api_license_path(), headers=token.to_header())
     response.raise_for_status()
-    return response.json()
+    return response
 
 def get_paginated_url(token: GitHubToken, url: str, page: int = GITHUB_DEFAULT_PAGE, per_page: int = GITHUB_MAX_PAGINATED):
     """
@@ -82,9 +82,9 @@ def get_paginated_url(token: GitHubToken, url: str, page: int = GITHUB_DEFAULT_P
         "page": page,
         "per_page": per_page
     }
-    resp = requests.get(url, headers=token.to_header(), params=params)
-    resp.raise_for_status()
-    return resp.json(), resp
+    response = requests.get(url, headers=token.to_header(), params=params)
+    response.raise_for_status()
+    return response
 
 def get_contributors(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_PAGE, per_page: int = GITHUB_MAX_PAGINATED):
     """

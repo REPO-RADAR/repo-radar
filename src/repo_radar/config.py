@@ -31,3 +31,6 @@ GITHUB_AUTH_HEADERS = {
 # GitHub pagination settings
 GITHUB_DEFAULT_PAGE = 1;
 GITHUB_MAX_PAGINATED = 100;
+
+# GitHub API rate limits
+GITHUB_DEFAULT_RATE = 5000
