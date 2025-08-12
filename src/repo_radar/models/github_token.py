@@ -1,12 +1,22 @@
 from dataclasses import dataclass
+from repo_radar.config import GITHUB_AUTH_HEADERS
 
 @dataclass
 class GitHubToken:
-    token: str
+    token_string: str
 
     def to_header(self) -> dict:
-        return {"Authorization": f"Bearer {self.token}"}
+        """
+        Return complete headers including auth. 
+        If token is empty, assemble headers for unauthenticated API requests.
+        """
+        headers = dict(GITHUB_AUTH_HEADERS)
+        if self.token_string:
+            headers["Authorization"] = f"Bearer {self.token_string}"
+        return headers
 
     def __repr__(self) -> str:
+        """Return string representation of token class. Mask token value."""
         class_name = self.__class__.__name__
-        return f"<{class_name} token='{self.token}'>"
+        masked = self.token_string[:4] + "…" if self.token_string else ""
+        return f"<{class_name} token='{masked}'>"
