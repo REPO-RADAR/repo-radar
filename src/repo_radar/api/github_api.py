@@ -96,7 +96,7 @@ def get_contributors(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFA
         page (int): Page number to request.
         per_page (int): Items per page (max 100).
     """
-    return get_paginated_url(url.api_contributors_path(), token, page, per_page)
+    return get_paginated_url(token, url.api_contributors_path(), page, per_page)
 
 def get_issues(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_PAGE, per_page: int = GITHUB_MAX_PAGINATED):
     """
@@ -108,7 +108,7 @@ def get_issues(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_PA
         page (int): Page number to request.
         per_page (int): Items per page (max 100).
     """
-    return get_paginated_url(url.api_issues_path(), token, page, per_page)
+    return get_paginated_url(token, url.api_issues_path(), page, per_page)
 
 def get_commits(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_PAGE, per_page: int = GITHUB_MAX_PAGINATED):
     """
@@ -120,7 +120,7 @@ def get_commits(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_P
         page (int): Page number to request.
         per_page (int): Items per page (max 100).
     """
-    return get_paginated_url(url.api_commits_path(), token, page, per_page)
+    return get_paginated_url(token, url.api_commits_path(), page, per_page)
 
 def get_pulls(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_PAGE, per_page: int = GITHUB_MAX_PAGINATED):
     """
@@ -132,4 +132,4 @@ def get_pulls(token: GitHubToken, url: GithubUrl, page: int = GITHUB_DEFAULT_PAG
         page (int): Page number to request.
         per_page (int): Items per page (max 100).
     """
-    return get_paginated_url(url.api_pulls_path(), token, page, per_page)
+    return get_paginated_url(token, url.api_pulls_path(), page, per_page)
