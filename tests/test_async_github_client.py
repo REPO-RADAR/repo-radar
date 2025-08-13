@@ -24,23 +24,27 @@ class TestAsyncGithubClient(unittest.TestCase):
             languages = await self.client.get_languages(self.url)
             self.assertIsInstance(languages.json(), dict)
 
-        asyncio.get_event_loop().run_until_complete(run_test()) # Needed to run nested async test
+        asyncio.get_event_loop().run_until_complete(run_test())
         
     def test_get_contributors(self):
         async def run_test():
             contributors = await self.client.get_contributors(self.url)
-            print(f"{contributors[0]=}")
-            print(f"{contributors[0].json()=}")
     
-            # Check first page is a Response
             self.assertIsInstance(contributors[0], requests.Response)
-    
-            # Check first page's JSON is a list (list of contributors)
             self.assertIsInstance(contributors[0].json(), list)
-    
-            # Check first contributor dict
             first_contributor = contributors[0].json()[0]
             self.assertIsInstance(first_contributor, dict)
+    
+        asyncio.get_event_loop().run_until_complete(run_test())
+        
+    def test_get_issues(self):
+        async def run_test():
+            issues = await self.client.get_issues(self.url)
+
+            self.assertIsInstance(issues[0], requests.Response)
+            self.assertIsInstance(issues[0].json(), list)
+            first_issue = issues[0].json()[0]
+            self.assertIsInstance(first_issue, dict)
     
         asyncio.get_event_loop().run_until_complete(run_test())
 

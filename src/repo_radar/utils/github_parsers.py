@@ -36,3 +36,14 @@ def paginated_has_next(response: Response) -> bool:
     if not link_header:
         return False
     return bool(re.search(LINK_HEADER_NEXT_REGEX, link_header))
+
+def get_next_paginated_url(response: Response) -> str:
+    link_header = response.headers.get("Link", "")
+    next_url = None
+    if link_header:
+        for part in link_header.split(","):
+            section = part.split(";")
+            if len(section) == 2 and 'rel="next"' in section[1]:
+                next_url = section[0].strip()[1:-1]  # remove < >
+                break
+    return next_url
