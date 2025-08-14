@@ -1,5 +1,5 @@
 import unittest
-from repo_radar.utils.github_url_parser import extract_github_urls
+from repo_radar.utils.github_parsers import extract_github_urls
 from repo_radar.models.github_url import GithubUrl
 
 class TestGitHubURLParser(unittest.TestCase):
