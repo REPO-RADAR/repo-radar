@@ -9,12 +9,11 @@ from typing import Optional, Tuple
 def validate_github_token(token: GitHubToken) -> Response:
     """
     Calls /user endpoint of provided GitHub token and throws exception if request fails.
+    If validation causes a 403 exception due to rate-limit, exception is not thrown and 
+    token is treated as valid.
     
     Args:
         token (GitHubToken): GitHub Token Dataclass Object
-        
-    Raises:
-        requests.exceptions.HTTPError: If token is invalid or request fails.
         
     Returns:
         requests.Response: The HTTP response object.
@@ -24,7 +23,7 @@ def validate_github_token(token: GitHubToken) -> Response:
         response.raise_for_status()
     except HTTPError as err:
         if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":    # If we get an exception and it's a rate limit, then the token is valid.
-            return response.json()
+            return response
         raise err
     return response
 
@@ -36,14 +35,10 @@ def get_github_url(token: GitHubToken, url: str) -> Response:
         token (GitHubToken): GitHub Token Dataclass Object
         url (str): string of GitHub api url to fetch
     
-    Raises:
-        requests.exceptions.HTTPError: If token is invalid or request fails.
-    
     Returns:
         requests.Response: The HTTP response object.
     """
-    response = requests.get(url, token.to_header())
-    response.raise_for_status()
+    response = requests.get(url, headers=token.to_header())
     return response
 
 def paginate_github_url(token: GitHubToken, url: str, per_page: int = GITHUB_MAX_PAGINATED) -> Tuple[Response, Optional[str]]:
@@ -56,7 +51,6 @@ def paginate_github_url(token: GitHubToken, url: str, per_page: int = GITHUB_MAX
         per_page (int): Items per page (max 100)
     
     Raises:
-        requests.exceptions.HTTPError: If token is invalid or request fails.
         ValueError: If per_page < 1 or exceeds 100 
     
     Returns:
@@ -71,6 +65,5 @@ def paginate_github_url(token: GitHubToken, url: str, per_page: int = GITHUB_MAX
         "per_page": per_page
     }
     response = requests.get(url, headers=token.to_header(), params=params)
-    response.raise_for_status()
     next_url = get_next_paginated_url(response)
     return response, next_url

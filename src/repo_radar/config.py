@@ -1,16 +1,13 @@
-import os
-import warnings
-
-# Matches GitHub repo URLs (https or SSH) and captures:
-#   - org/user as 'org_user'
-#   - repository name as 'repo'
-
 from __future__ import annotations
 import os
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Matches GitHub repo URLs (https or SSH) and captures:
+#   - org/user as 'org_user'
+#   - repository name as 'repo'
 GITHUB_URL_REGEX = (
     r"(?:https?:\/\/|git@)?(?:www\.)?github\.com[\/:]"
     r"(?P<org_user>[\w_-]+)\/"

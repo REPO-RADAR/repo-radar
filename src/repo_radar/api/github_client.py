@@ -7,11 +7,12 @@ import repo_radar.api.github_api as github_api
 from repo_radar.utils.rate_limit_manager import RateLimitManager
 import asyncio
 from requests import Response
+from requests.exceptions import HTTPError
 import logging
 
 class AbstractGitHubApiClient(ABC):
-    def __init__(self, passed_token: str):
-        self.token = GitHubToken(passed_token)
+    def __init__(self, token: str):
+        self.token = GitHubToken(token)
         github_api.validate_github_token(self.token)
 
     @abstractmethod
@@ -45,8 +46,8 @@ class AbstractGitHubApiClient(ABC):
         pass
 
 class GitHubClient(AbstractGitHubApiClient):
-    def __init__(self, passed_token: str):
-        super().__init__(passed_token)
+    def __init__(self, token: str):
+        super().__init__(token)
         self.rate_manager = RateLimitManager()
         self.logger = logging.getLogger(__name__)
         
@@ -54,6 +55,7 @@ class GitHubClient(AbstractGitHubApiClient):
         async with self.rate_manager:
             response = await asyncio.to_thread(github_api.get_github_url, self.token, url)
             await self.rate_manager.update_from_headers(response)
+            response.raise_for_status()
             
         return response
         
@@ -61,6 +63,7 @@ class GitHubClient(AbstractGitHubApiClient):
         async with self.rate_manager:
             response, next_url = await asyncio.to_thread(github_api.paginate_github_url, self.token, url=url, per_page=GITHUB_MAX_PAGINATED)
             await self.rate_manager.update_from_headers(response)
+            response.raise_for_status()
             
         return response, next_url
     
@@ -69,21 +72,24 @@ class GitHubClient(AbstractGitHubApiClient):
         response, next_url = await self._get_paginated_github_page(url)
         responses.append(response)
         
-        while next_url is not None:
+        while next_url:
             retries = 0
             while True:
                 try:
                     response, next_url = await self._get_paginated_github_page(next_url)
                     responses.append(response)
                     break
-                except Exception as e:
-                    if retries < MAX_RETRIES:
+                except HTTPError as e:
+                    status = getattr(e.response, "status_code", None)
+                    if retries < MAX_RETRIES and status == 403:
                         retries += 1
-                        self.logger.warning("Unexpected error while paginating GitHub url. Retrying...")
+                        self.logger.warning("HTTP Error 403 while paginating GitHub url. Retrying...")
                         await asyncio.sleep(1) # Backoff
                         continue
-                    self.logger.error(f"Retried {retries} times on {next_url}. Raising error.")
-                    raise e
+                    if status == 403:
+                        self.logger.error(f"Retried {retries} times on {next_url}. Raising error.")
+                        raise e
+                    raise
         
         return responses
     

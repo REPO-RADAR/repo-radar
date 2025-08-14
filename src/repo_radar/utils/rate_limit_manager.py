@@ -24,7 +24,7 @@ class RateLimitManager:
         self._headers_updated = False
         self._lock_owner = asyncio.current_task()
         
-        if self.remaining is not None and self.remaining <= 0:
+        if self.remaining and self.remaining <= 0:
             now = time.time()
             wait_time = max(0, (self.reset_time or now) - now)
             
@@ -61,4 +61,4 @@ class RateLimitManager:
             
         except (ValueError, TypeError):
             self.logger.warning("Rate limit headers missing from response.")
-            response.raise_for_status()
+            raise RuntimeError("Rate limit headers missing from response.")
