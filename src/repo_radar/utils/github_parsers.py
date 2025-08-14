@@ -1,15 +1,15 @@
 import re
 from requests import Response
 from typing import List
-from repo_radar.models.github_url import GithubUrl
+from repo_radar.models.github_url import GitHubUrl
 from repo_radar.config import GITHUB_URL_REGEX, LINK_HEADER_NEXT_REGEX
 
-def extract_github_urls(text: str) -> List[GithubUrl]:
+def extract_github_urls(text: str) -> List[GitHubUrl]:
     """
     Extracts GitHub repository URLs from the passed string.
 
     Parses the input text to find all GitHub URLs matching common URL patterns
-    (https, ssh, with or without .git suffix), and returns a list of `GithubUrl` 
+    (https, ssh, with or without .git suffix), and returns a list of `GitHubUrl` 
     dataclass instances containing the full URL, the organization/user, and the 
     repository name.
 
@@ -17,7 +17,7 @@ def extract_github_urls(text: str) -> List[GithubUrl]:
         text (str): The input string which may contain one or more GitHub URLs.
 
     Returns:
-        List[GithubUrl]: A list of `GithubUrl` objects representing each matched URL.
+        List[GitHubUrl]: A list of `GitHubUrl` objects representing each matched URL.
     """
     regex = re.compile(GITHUB_URL_REGEX)
     matches = regex.finditer(text)
@@ -27,7 +27,7 @@ def extract_github_urls(text: str) -> List[GithubUrl]:
         full_url = match.group()
         org_user = match.group("org_user")
         repo = match.group("repo")
-        results.append(GithubUrl(full_url=full_url, org_user=org_user, repo=repo))
+        results.append(GitHubUrl(full_url=full_url, org_user=org_user, repo=repo))
 
     return results
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from repo_radar.config import GITHUB_API_URL
 
 @dataclass
-class GithubUrl:
+class GitHubUrl:
     full_url: str
     org_user: str
     repo: str

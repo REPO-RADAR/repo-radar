@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
 from repo_radar.models.github_token import GitHubToken
-from repo_radar.models.github_url import GithubUrl
+from repo_radar.models.github_url import GitHubUrl
 from repo_radar.config import GITHUB_MAX_PAGINATED, MAX_RETRIES
 import repo_radar.api.github_api as github_api
 from repo_radar.utils.rate_limit_manager import RateLimitManager
@@ -16,32 +16,32 @@ class AbstractGitHubApiClient(ABC):
         github_api.validate_github_token(self.token)
 
     @abstractmethod
-    async def get_languages(self, url: GithubUrl) -> Response:
+    async def get_languages(self, url: GitHubUrl) -> Response:
         """Return languages."""
         pass
 
     @abstractmethod
-    async def get_license(self, url: GithubUrl) -> Response:
+    async def get_license(self, url: GitHubUrl) -> Response:
         """Return license information."""
         pass
 
     @abstractmethod
-    async def get_commits(self, url: GithubUrl) -> List[Response]:
+    async def get_commits(self, url: GitHubUrl) -> List[Response]:
         """Return all commits."""
         pass
 
     @abstractmethod
-    async def get_issues(self, url: GithubUrl) -> List[Response]:
+    async def get_issues(self, url: GitHubUrl) -> List[Response]:
         """Return all issues."""
         pass
 
     @abstractmethod
-    async def get_pulls(self, url: GithubUrl) -> List[Response]:
+    async def get_pulls(self, url: GitHubUrl) -> List[Response]:
         """Return all pull requests."""
         pass
 
     @abstractmethod
-    async def get_contributors(self, url: GithubUrl) -> List[Response]:
+    async def get_contributors(self, url: GitHubUrl) -> List[Response]:
         """Return all contributors."""
         pass
 
@@ -93,20 +93,20 @@ class GitHubClient(AbstractGitHubApiClient):
         
         return responses
     
-    async def get_languages(self, url: GithubUrl) -> Response:
+    async def get_languages(self, url: GitHubUrl) -> Response:
         return await self._get_github_page(url.api_languages_path())
 
-    async def get_license(self, url: GithubUrl) -> Response:
+    async def get_license(self, url: GitHubUrl) -> Response:
         return await self._get_github_page(url.api_license_path())
 
-    async def get_commits(self, url: GithubUrl) -> List[Response]:
+    async def get_commits(self, url: GitHubUrl) -> List[Response]:
         return await self._paginate_github_url(url.api_commits_path())
 
-    async def get_issues(self, url: GithubUrl) -> List[Response]:
+    async def get_issues(self, url: GitHubUrl) -> List[Response]:
         return await self._paginate_github_url(url.api_issues_path())
 
-    async def get_pulls(self, url: GithubUrl) -> List[Response]:
+    async def get_pulls(self, url: GitHubUrl) -> List[Response]:
         return await self._paginate_github_url(url.api_pulls_path())
 
-    async def get_contributors(self, url: GithubUrl) -> List[Response]:
+    async def get_contributors(self, url: GitHubUrl) -> List[Response]:
         return await self._paginate_github_url(url.api_contributors_path())
