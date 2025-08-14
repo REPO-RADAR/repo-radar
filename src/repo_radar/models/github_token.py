@@ -3,6 +3,16 @@ from repo_radar.config import GITHUB_AUTH_HEADERS
 
 @dataclass
 class GitHubToken:
+    """
+    Represents a GitHub personal access token.
+
+    Provides helper method to generate HTTP headers for authenticated
+    or unauthenticated GitHub API requests.
+
+    Attributes:
+        - token_string (str): The raw GitHub personal access token string.
+    """
+
     token_string: str
 
     def to_header(self) -> dict:

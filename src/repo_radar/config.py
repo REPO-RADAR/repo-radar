@@ -40,6 +40,10 @@ MAX_RETRIES = 5
 
 # GitHub API rate limits
 GITHUB_DEFAULT_RATE = 5000
+
+#GitHub default delta for branch comparison in days
+GITUB_DEFAULT_DELTA = 30
+
 # Load .env from project root (parent of src/)
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")

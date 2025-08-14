@@ -47,8 +47,17 @@ class TestAsyncGithubClient(unittest.TestCase):
             self.assertIsInstance(first_issue, dict)
     
         asyncio.get_event_loop().run_until_complete(run_test())
+        
+    def test_get_branches(self):
+        async def run_test():
+            branches = await self.client.get_branches(self.url)
 
-
+            self.assertIsInstance(branches[0], requests.Response)
+            self.assertIsInstance(branches[0].json(), list)
+            first_branches = branches[0].json()[0]
+            self.assertIsInstance(first_branches, dict)
+    
+        asyncio.get_event_loop().run_until_complete(run_test())
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,10 +13,10 @@ def validate_github_token(token: GitHubToken) -> Response:
     token is treated as valid.
     
     Args:
-        token (GitHubToken): GitHub Token Dataclass Object
+        - token (GitHubToken): GitHub Token Dataclass Object
         
     Returns:
-        requests.Response: The HTTP response object.
+        - requests.Response: The HTTP response object.
     """
     response = requests.get(f"{GITHUB_API_USER_ENDPOINT}", headers=token.to_header())
     try:
@@ -32,11 +32,11 @@ def get_github_url(token: GitHubToken, url: str) -> Response:
     Fetch from GitHub API url and return response.
     
     Args:
-        token (GitHubToken): GitHub Token Dataclass Object
-        url (str): string of GitHub api url to fetch
+        - token (GitHubToken): GitHub Token Dataclass Object
+        - url (str): string of GitHub api url to fetch
     
     Returns:
-        requests.Response: The HTTP response object.
+        - requests.Response: The HTTP response object.
     """
     response = requests.get(url, headers=token.to_header())
     return response
@@ -46,15 +46,15 @@ def paginate_github_url(token: GitHubToken, url: str, per_page: int = GITHUB_MAX
     Fetch from GitHub API url and return response with the next page URL if any.
     
     Args:
-        token (GitHubToken): GitHub Token Dataclass Object
-        url (str): string of GitHub api url to fetch
-        per_page (int): Items per page (max 100)
+        - token (GitHubToken): GitHub Token Dataclass Object
+        - url (str): string of GitHub api url to fetch
+        - per_page (int): Items per page (max 100)
     
     Raises:
-        ValueError: If per_page < 1 or exceeds 100 
+        - ValueError: If per_page < 1 or exceeds 100 
     
     Returns:
-        tuple: (requests.Response, Optional[str])
+        - tuple: (requests.Response, Optional[str])
             - response (requests.Response): The HTTP response object.
             - next_url (Optional[str]): URL of the next page, or None if there are no more pages.
     """
