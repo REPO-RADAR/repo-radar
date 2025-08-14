@@ -1,8 +1,8 @@
 import unittest
 from repo_radar.utils.github_parsers import extract_github_urls
-from repo_radar.models.github_url import GithubUrl
+from repo_radar.models.github_url import GitHubUrl
 
-class TestGitHubURLParser(unittest.TestCase):
+class TestGitHubUrlParser(unittest.TestCase):
     def test_valid_urls(self):
         test_input = """
         https://github.com/github/gitignore/blob/main/Python.gitignore
@@ -12,19 +12,19 @@ class TestGitHubURLParser(unittest.TestCase):
         https://github.com/user_with_underscore/repo-name123/
         """
         expected = [
-            GithubUrl(full_url="https://github.com/github/gitignore/blob/main/Python.gitignore",
+            GitHubUrl(full_url="https://github.com/github/gitignore/blob/main/Python.gitignore",
                       org_user="github",
                       repo="gitignore"),
-            GithubUrl(full_url="https://github.com/REPO-RADAR/repo-radar/tree/6-create-github-url-parser",
+            GitHubUrl(full_url="https://github.com/REPO-RADAR/repo-radar/tree/6-create-github-url-parser",
                       org_user="REPO-RADAR",
                       repo="repo-radar"),
-            GithubUrl(full_url="git@github.com:octocat/Hello-World.git",
+            GitHubUrl(full_url="git@github.com:octocat/Hello-World.git",
                       org_user="octocat",
                       repo="Hello-World"),
-            GithubUrl(full_url="http://www.github.com/user123/my-repo",
+            GitHubUrl(full_url="http://www.github.com/user123/my-repo",
                       org_user="user123",
                       repo="my-repo"),
-            GithubUrl(full_url="https://github.com/user_with_underscore/repo-name123/",
+            GitHubUrl(full_url="https://github.com/user_with_underscore/repo-name123/",
                       org_user="user_with_underscore",
                       repo="repo-name123"),
         ]
