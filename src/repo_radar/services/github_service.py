@@ -1,14 +1,22 @@
+from __future__ import annotations
 from repo_radar.api.github_client import GitHubClient as Client
 from repo_radar.models.github_url import GitHubUrl
+from requests import Response
+from typing import Any, Dict, List, Optional, Tuple
 import asyncio
 
 class GitHubService:
     
     def __init__(self, token: str):
         self.client = Client(token)
+
+    def _run(self, coro):
+        return asyncio.run(coro)
         
     def get_languages(self, url: GitHubUrl):
-        response = asyncio.run(self.client.get_languages(url))
+        resp: Response = self._run(self.client.get_languages(url))
+        resp.raise_for_status()
+        return resp.json() or {}
         
     def get_license(self, url: GitHubUrl):
         response = asyncio.run(self.client.get_license(url))
@@ -31,21 +39,24 @@ class GitHubService:
     def compare_branch(self, url: GitHubUrl):
         Client.compare_branch(url)
 
-@dataclass
-class Commit:
-    str contributor
-    int date_created
+    def get_commits(self, url: GitHubUrl) -> List[(Commit)]:
+        pass
+
+#@dataclass
+#class Commit:
+#    str contributor
+#    int date_created
     
 
-@dataclass
-class GitHubCommits:
-    List[commit]
-    total_commits: int = 0
+#@dataclass
+#class GitHubCommits:
+#    List[commit]
+#    total_commits: int = 0
     
     
-    def getCommitLast30Days -> int:
-        commits = 0
+#    def getCommitLast30Days -> int:
+#        commits = 0
         
         # for each commit, check date, increment if date < 30
         
-        return commits
+#        return commits

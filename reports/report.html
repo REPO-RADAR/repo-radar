@@ -1,0 +1,10 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Repo Radar Report</title>
+<style>body{font-family:system-ui;margin:24px} img{max-width:700px}</style>
+</head><body>
+<h1>Repo Radar — MVP Report</h1>
+<h2>LLM overview</h2>
+<p>Notable trends / risks<br>- Visibility gap: key metrics (issues opened/closed, backlog delta, CVEs, Sentry error rate) are TBD — leadership lacks actionable telemetry for last 30 days.<br>- Single-language codebase (Python-only) concentrates technical and dependency risk; unresolved CVEs would disproportionately impact the service.<br>- Potential operational risk: unknown error rate and backlog state could mask regressions or delivery bottlenecks.<br><br>Recommended actions<br>- Instrument and report: populate issues, backlog Δ, CVE status, and Sentry/error metrics on a recurring cadence (weekly).<br>- Run immediate dependency and security scans (SCA) and remediate any high CVEs; track fix ETA.<br>- Triage backlog and set SLAs for critical/bug fixes; add alerting for error-rate regressions to prevent production impact.</p>
+<h2>Languages (%)</h2>
+<img src="languages.png" alt="Languages bar chart">
+</body></html>

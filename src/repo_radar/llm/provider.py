@@ -10,7 +10,7 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 API_BASE = "https://openrouter.ai/api/v1"
 PRIMARY_MODEL = "openrouter/openai/gpt-5-mini"
-DAILY_LIMIT = int(os.getenv("LLM_DAILY_LIMIT", "5"))
+DAILY_LIMIT = int(os.getenv("LLM_DAILY_LIMIT", "10"))
 TIMEOUT = int(os.getenv("LLM_TIMEOUT", "20"))
 
 def _cache_key(text: str) -> str:
