@@ -22,7 +22,7 @@ def validate_github_token(token: GitHubToken) -> Response:
     try:
         response.raise_for_status()
     except HTTPError as err:
-        if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":    # If we get an exception and it's a rate limit, then the token is valid.
+        if response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0":    # If we get an exception and it's a rate limit, then the token is valid and we will fail silently unless the caller raises it.
             return response
         raise err
     return response

@@ -1,8 +1,5 @@
-version = 1
-revision = 2
-requires-python = ">=3.12"
-
 [[package]]
+version = 1
 revision = 3
 requires-python = ">=3.12"
 
@@ -823,11 +820,11 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "python-dotenv", specifier = ">=1.1.1" }]
 requires-dist = [
     { name = "litellm", specifier = ">=1.75.5.post1" },
-    { name = "python-dotenv", specifier = ">=1.1.1" },
+    { name = "python-dotenv", specifier = ">=1.1.1" }
 ]
+
 
 [[package]]
 name = "requests"
