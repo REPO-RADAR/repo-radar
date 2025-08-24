@@ -1,12 +1,10 @@
 import unittest
-import nest_asyncio
 import asyncio
 import repo_radar.config as config
 from repo_radar.api.github_client import GitHubClient
 from repo_radar.utils.github_parsers import extract_github_urls
 import requests
 
-nest_asyncio.apply()
 
 class TestAsyncGithubClient(unittest.TestCase):
 
@@ -24,40 +22,38 @@ class TestAsyncGithubClient(unittest.TestCase):
             languages = await self.client.get_languages(self.url)
             self.assertIsInstance(languages.json(), dict)
 
-        asyncio.get_event_loop().run_until_complete(run_test())
+        asyncio.run(run_test())
         
     def test_get_contributors(self):
         async def run_test():
             contributors = await self.client.get_contributors(self.url)
-    
             self.assertIsInstance(contributors[0], requests.Response)
             self.assertIsInstance(contributors[0].json(), list)
             first_contributor = contributors[0].json()[0]
             self.assertIsInstance(first_contributor, dict)
-    
-        asyncio.get_event_loop().run_until_complete(run_test())
+
+        asyncio.run(run_test())
         
     def test_get_issues(self):
         async def run_test():
             issues = await self.client.get_issues(self.url)
-
             self.assertIsInstance(issues[0], requests.Response)
             self.assertIsInstance(issues[0].json(), list)
             first_issue = issues[0].json()[0]
             self.assertIsInstance(first_issue, dict)
-    
-        asyncio.get_event_loop().run_until_complete(run_test())
+
+        asyncio.run(run_test())
         
     def test_get_branches(self):
         async def run_test():
             branches = await self.client.get_branches(self.url)
-
             self.assertIsInstance(branches[0], requests.Response)
             self.assertIsInstance(branches[0].json(), list)
-            first_branches = branches[0].json()[0]
-            self.assertIsInstance(first_branches, dict)
-    
-        asyncio.get_event_loop().run_until_complete(run_test())
+            first_branch = branches[0].json()[0]
+            self.assertIsInstance(first_branch, dict)
+
+        asyncio.run(run_test())
+
 
 if __name__ == "__main__":
     unittest.main()

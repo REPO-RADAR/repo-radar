@@ -26,7 +26,6 @@ class AbstractGitHubApiClient(ABC):
 
     def __init__(self, token: str):
         self.token = GitHubToken(token)
-        github_api.validate_github_token(self.token)
 
     @abstractmethod
     async def get_languages(self, url: GitHubUrl) -> Response:
@@ -89,7 +88,8 @@ class GitHubClient(AbstractGitHubApiClient):
             - token (str): GitHub personal access token for authentication.
         """
         super().__init__(token)
-        self.rate_manager = RateLimitManager()
+        response = github_api.validate_github_token(self.token) # Validate the GitHub token and set the rate limits
+        self.rate_manager = RateLimitManager(response)
         self.logger = logging.getLogger(__name__)
 
     async def _get_github_page(self, url: str) -> Response:

@@ -4,6 +4,8 @@ from repo_radar.models.github_url import GitHubUrl
 from requests import Response
 from typing import Any, Dict, List, Optional, Tuple
 import asyncio
+from dataclasses import dataclass
+from datetime import datetime
 
 class GitHubService:
     
@@ -19,44 +21,46 @@ class GitHubService:
         return resp.json() or {}
         
     def get_license(self, url: GitHubUrl):
-        response = asyncio.run(self.client.get_license(url))
+        resp: Response = self._run(self.client.get_license(url))
+        resp.raise_for_status()
+        return resp.json() or {}
         
     def get_commits(self, url: GitHubUrl):
-        Client.get_commits(url)
+        pass
         
     def get_issues(self, url: GitHubUrl):
-        Client.get_issues(url)
+        pass
         
     def get_pulls(self, url: GitHubUrl):
-        Client.get_pulls(url)
+        pass
     
     def get_contributors(self, url: GitHubUrl):
-        Client.get_contributors(url)
+        pass
         
     def get_branches(self, url: GitHubUrl):
-        Client.get_branches(url)
+        pass
         
     def compare_branch(self, url: GitHubUrl):
-        Client.compare_branch(url)
-
-    def get_commits(self, url: GitHubUrl) -> List[(Commit)]:
         pass
 
-#@dataclass
-#class Commit:
-#    str contributor
-#    int date_created
+@dataclass
+class Repository:
+    url: GitHubUrl
+    branches: List[Branch] = None
+    issues: Optional[dict] = None
+    pulls: Optional[dict] = None
+    contributors: Optional[dict] = None
+    license: Optional[str] = None
+    languages: Optional[dict] = None
     
-
-#@dataclass
-#class GitHubCommits:
-#    List[commit]
-#    total_commits: int = 0
+@dataclass
+class Branch:
+    name: str
+    commits: List[Commit] = None
     
-    
-#    def getCommitLast30Days -> int:
-#        commits = 0
-        
-        # for each commit, check date, increment if date < 30
-        
-#        return commits
+@dataclass
+class Commit:
+    sha: str
+    author: str
+    date: datetime
+    message: str
