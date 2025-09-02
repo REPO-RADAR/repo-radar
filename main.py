@@ -4,10 +4,15 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parent / "src"))
 from dotenv import load_dotenv
 load_dotenv()  # reads .env at repo root
 
+from repo_radar.monitoring import sentry_sdk_init
+sentry_sdk_init.init()
+
 from repo_radar.services.sentry_service import (
-    unresolved_issue_count_30d, top_error_titles, error_timeseries_30d, latency_p50_timeseries_30d
+    unresolved_issue_count_30d,
+    top_error_titles,
+    error_timeseries_30d,
+    latency_p50_timeseries_30d,
 )
-from repo_radar.reports.charts import save_language_bar_chart
 
 from typing import List
 from repo_radar.models.github_url import GitHubUrl
@@ -44,6 +49,13 @@ def collect_language_percentages(svc: GitHubService, repos: List[GitHubUrl]):
 def metrics_text_from_lang(repos: List[GitHubUrl], lang_pairs: list[tuple[str, float]]) -> str:
     top5 = lang_pairs[:5]
     lang_str = ", ".join(f"{k} {v:.1f}%" for k, v in top5) if top5 else "n/a"
+    try:
+        err_count = unresolved_issue_count_30d()
+        tops = top_error_titles()
+        top_errs_str = "; ".join(f"{t} ({c})" for t, c in tops) if tops else "n/a"
+        err_line = f"{err_count} unresolved issues (30d)" if err_count is not None else "n/a"
+    except Exception:
+        err_line, top_errs_str = "n/a", "n/a"
     return "\n".join([
         "Window: last 30 days",
         f"Repos: {', '.join([r.repo_path() for r in repos])}",
@@ -86,6 +98,20 @@ def main():
     # 2) Save chart
     chart_path = save_language_bar_chart(lang_pairs, "reports/languages.png")
     print(f"✓ Saved chart: {chart_path}")
+
+    # Sentry 
+    try:
+        errs_series = error_timeseries_30d()
+        if errs_series:
+            chart_paths.append(str(save_line_chart(errs_series, "Errors (last 30 days)", "Count", "reports/sentry_errors.png")))
+            print(f"✓ Saved chart: {chart_paths[-1]}")
+
+        p50_series = latency_p50_timeseries_30d()
+        if p50_series:
+            chart_paths.append(str(save_line_chart(p50_series, "Latency p50 (ms, 30d)", "ms", "reports/sentry_latency.png")))
+            print(f"✓ Saved chart: {chart_paths[-1]}")
+    except Exception as e:
+        print(f"⚠ Could not fetch Sentry data: {e}")
 
     # 3) Build metrics + LLM summary
     metrics_text = metrics_text_from_lang(REPOS, lang_pairs)
