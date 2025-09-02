@@ -4,6 +4,11 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parent / "src"))
 from dotenv import load_dotenv
 load_dotenv()  # reads .env at repo root
 
+from repo_radar.services.sentry_service import (
+    unresolved_issue_count_30d, top_error_titles, error_timeseries_30d, latency_p50_timeseries_30d
+)
+from repo_radar.reports.charts import save_language_bar_chart
+
 from typing import List
 from repo_radar.models.github_url import GitHubUrl
 from repo_radar.services.github_service import GitHubService
