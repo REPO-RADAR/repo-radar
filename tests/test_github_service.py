@@ -39,7 +39,7 @@ class TestGitHubService(unittest.TestCase):
     #     response = self.GitHub.get_issues(self.url)
         
     def test_get_repo(self):
-        response = self.GitHub.get_repo(self.url)
+        response = self.GitHub.get_repo(self.url, delta=0)
         print(response.__repr__())
 
 
