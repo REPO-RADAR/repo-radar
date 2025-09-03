@@ -7,7 +7,7 @@ from typing import List
 import asyncio
 from datetime import datetime
 
-from repo_radar.models.github_repoistory import (
+from repo_radar.models.github_repository import (
     Repository,
     Branch,
     Commit,
