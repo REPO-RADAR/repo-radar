@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
 from repo_radar.models.github_token import GitHubToken
 from repo_radar.models.github_url import GitHubUrl
-from repo_radar.config import GITHUB_MAX_PAGINATED, MAX_RETRIES, GITUB_DEFAULT_DELTA
+from repo_radar.config import GITHUB_MAX_PAGINATED, MAX_RETRIES
 import repo_radar.api.github_api as github_api
 from repo_radar.utils.rate_limit_manager import RateLimitManager
 import asyncio
@@ -101,10 +101,8 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (str): Full GitHub API URL to request.
-
         Returns:
             - Response: The HTTP response object.
-
         Raises:
             - HTTPError: If the response status is an error.
         """
@@ -123,10 +121,8 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (str): GitHub API URL for the current page.
-
         Returns:
             - Tuple[Response, Optional[str]]: The HTTP response and the URL for the next page, or None if there is no next page.
-
         Raises:
             - HTTPError: If the response status is an error.
         """
@@ -151,10 +147,8 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (str): GitHub API URL to paginate through.
-
         Returns:
             - List[Response]: A list of HTTP responses, one per page.
-
         Raises:
             - HTTPError: If a non-retriable error occurs or retries are exhausted.
         """
@@ -192,7 +186,6 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
         Returns:
             - Response: The HTTP response containing languages data.
         """
@@ -204,47 +197,61 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
         Returns:
             - Response: The HTTP response containing license data.
         """
         return await self._get_github_page(url.api_license_path())
 
-    async def get_commits(self, url: GitHubUrl) -> List[Response]:
+    async def get_commits(self, url: GitHubUrl, delta: int = 0) -> List[Response]:
         """
         Get the commit history of a repository's main branch
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
+            - delta (int): Maximum number of days in the past to include commits.
         Returns:
             - List[Response]: List of HTTP responses containing commit data.
         """
-        return await self._paginate_github_url(url.api_commits_path())
+        if delta > 0:
+            since_timestamp = int(time.time()) - delta * 86400  # convert days to seconds
+            commit_path = url.api_commits_path(since_timestamp)
+        else:
+            commit_path = url.api_commits_path()
+        return await self._paginate_github_url(commit_path)
 
-    async def get_issues(self, url: GitHubUrl) -> List[Response]:
+    async def get_issues(self, url: GitHubUrl, delta = 0) -> List[Response]:
         """
         Get the issues of a repository.
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
+            - delta (int): Maximum number of days in the past to include commits.
         Returns:
             - List[Response]: List of HTTP responses containing issue data.
         """
-        return await self._paginate_github_url(url.api_issues_path())
+        if delta > 0:
+            since_timestamp = int(time.time()) - delta * 86400  # convert days to seconds
+            issues_path = url.api_issues_path(since_timestamp)
+        else:
+            issues_path = url.api_issues_path(delta)
+        return await self._paginate_github_url(issues_path)
 
-    async def get_pulls(self, url: GitHubUrl) -> List[Response]:
+    async def get_pulls(self, url: GitHubUrl, delta = 0) -> List[Response]:
         """
         Get the pull requests of a repository.
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
+            - delta (int): Maximum number of days in the past to include commits.
         Returns:
             - List[Response]: List of HTTP responses containing pull request data.
         """
-        return await self._paginate_github_url(url.api_pulls_path())
+        if delta > 0:
+            since_timestamp = int(time.time()) - delta * 86400  # convert days to seconds
+            pulls_path = url.api_pulls_path(since_timestamp)
+        else:
+            pulls_path = url.api_pulls_path(delta)
+        return await self._paginate_github_url(pulls_path)
 
     async def get_contributors(self, url: GitHubUrl) -> List[Response]:
         """
@@ -252,7 +259,6 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
         Returns:
             - List[Response]: List of HTTP responses containing contributor data.
         """
@@ -264,13 +270,12 @@ class GitHubClient(AbstractGitHubApiClient):
 
         Args:
             - url (GitHubUrl): Repository URL wrapper.
-
         Returns:
             - List[Response]: List of HTTP responses containing contributor data.
         """
         return await self._paginate_github_url(url.api_branch_path())
 
-    async def compare_branch(self, url: GitHubUrl, sha: str, delta: int = GITUB_DEFAULT_DELTA) -> List[Response]:
+    async def compare_branch(self, url: GitHubUrl, sha: str, delta: int = 0) -> List[Response]:
         """
         Return commit difference between main branch and a given sha up to maximum delta (days).
     
@@ -278,10 +283,23 @@ class GitHubClient(AbstractGitHubApiClient):
             - url (GitHubUrl): Repository URL wrapper.
             - sha (str): SHA of the branch or commit to compare.
             - delta (int): Maximum number of days in the past to include commits.
-    
         Returns:
             - List[Response]: List of HTTP responses from GitHub containing commit data.
         """
-        since_timestamp = int(time.time()) - delta * 86400  # convert days to seconds
-        compare_url = url.api_compare_path(sha, since_timestamp)
-        return await self._paginate_github_url(compare_url)
+        if delta > 0:
+            since_timestamp = int(time.time()) - delta * 86400  # convert days to seconds
+            compare_path = url.api_compare_path(sha, since_timestamp)
+        else:
+            compare_path = url.api_compare_path(sha)
+        return await self._paginate_github_url(compare_path)
+    
+    async def get_repo_metadata(self, url: GitHubUrl) -> Response:
+        """
+        Get the meta data of a repository
+
+        Args:
+            - url (GitHubUrl): Repository URL wrapper.
+        Returns:
+            - Response: The HTTP response object.
+        """
+        return await self._get_github_page(url.api_repo_path())

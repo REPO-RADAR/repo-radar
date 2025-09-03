@@ -17,25 +17,30 @@ class TestGitHubService(unittest.TestCase):
             "https://github.com/REPO-RADAR/repo-radar"
         ).pop(0)
 
-    def test_get_languages(self):
-        response = self.GitHub.get_languages(self.url)
-        print(response)
+    # def test_get_languages(self):
+    #     response = self.GitHub.get_languages(self.url)
         
-    def test_get_license(self):
-        response = self.GitHub.get_license(self.url)
-        print(response)
+    # def test_get_license(self):
+    #     response = self.GitHub.get_license(self.url)
         
-    def test_get_contributors(self):
-        response = self.GitHub.get_contributors(self.url)
-        print(response)
+    # def test_get_contributors(self):
+    #     response = self.GitHub.get_contributors(self.url)
         
-    def test_get_branches(self):
-        response = self.GitHub.get_branches(self.url)
-        print(response.pop(0).json())
+    # def test_get_branches(self):
+    #     response = self.GitHub.get_branches(self.url)
+        
+    # def test_get_commits(self):
+    #     response = self.GitHub.get_commits(self.url)
+        
+    # def test_get_pulls(self):
+    #     response = self.GitHub.get_pulls(self.url)
     
-    def test_get_issues(self):
-        response = self.GitHub.get_issues(self.url)
-        print(response)
+    # def test_get_issues(self):
+    #     response = self.GitHub.get_issues(self.url)
+        
+    def test_get_repo(self):
+        response = self.GitHub.get_repo(self.url)
+        print(response.__repr__())
 
 
 if __name__ == "__main__":

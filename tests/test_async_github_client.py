@@ -53,6 +53,14 @@ class TestAsyncGithubClient(unittest.TestCase):
             self.assertIsInstance(first_branch, dict)
 
         asyncio.run(run_test())
+        
+    def test_get_metadata(self):
+        async def run_test():
+            metadata = await self.client.get_repo_metadata(self.url)
+            self.assertIsInstance(metadata, requests.Response)
+            self.assertIsInstance(metadata.json(), dict)
+            
+        asyncio.run(run_test())
 
 
 if __name__ == "__main__":

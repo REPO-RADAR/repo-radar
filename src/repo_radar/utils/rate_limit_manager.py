@@ -69,9 +69,11 @@ class RateLimitManager:
             if self.reset_time is None or reset_time > self.reset_time:         # Set limits if reset_time has expired or not set
                 self.reset_time = reset_time
                 self.remaining = remaining
+            
             elif reset_time == self.reset_time and remaining < self.remaining:  # Update remaining for current reset window if new value is worse than current value
                 self.remaining = remaining
-    
+
+            print(f"remain: {self.remaining}")
             self._headers_updated = True
     
             return True
