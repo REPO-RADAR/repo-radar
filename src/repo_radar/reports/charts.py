@@ -14,10 +14,36 @@ def save_language_bar_chart(pairs: List[Tuple[str, float]], out_path: str | Path
     values = [p[1] for p in pairs]
 
     plt.figure(figsize=(8, 4.5))
-    plt.bar(labels, values)            # default colors are fine
+    plt.bar(labels, values)
     plt.xticks(rotation=30, ha="right")
     plt.ylabel("Language usage (%)")
     plt.title("Language composition across selected repos")
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+    return out_path
+
+
+def save_line_chart(
+    series: List[Tuple], title: str, y_label: str, out_path: str | Path
+) -> Path:
+    """
+    series: [(datetime, value), ...]
+    """
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not series:
+        return out_path
+
+    xs, ys = zip(*series)
+
+    plt.figure(figsize=(8, 4.5))
+    plt.plot(xs, ys, marker="o", linestyle="-")
+    plt.title(title)
+    plt.ylabel(y_label)
+    plt.xlabel("Date")
+    plt.gcf().autofmt_xdate()
     plt.tight_layout()
     plt.savefig(out_path, dpi=150)
     plt.close()
