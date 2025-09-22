@@ -24,6 +24,14 @@ class GitHubToken:
         if self.token_string:
             headers["Authorization"] = f"Bearer {self.token_string}"
         return headers
+    
+    def to_graphql_header(self) -> dict:
+        """
+        Return headers for GraphQL requests.
+        """
+        headers = self.to_header()
+        headers["Accept"] = "application/vnd.github.v4+json"
+        return headers
 
     def __repr__(self) -> str:
         """Return string representation of token class. Mask token value."""

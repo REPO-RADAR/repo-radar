@@ -1,10 +1,7 @@
 import unittest
-import asyncio
 import repo_radar.config as config
 from repo_radar.services.github_service import GitHubService
 from repo_radar.utils.github_parsers import extract_github_urls
-import requests
-
 
 class TestGitHubService(unittest.TestCase):
 
@@ -39,7 +36,7 @@ class TestGitHubService(unittest.TestCase):
     #     response = self.GitHub.get_issues(self.url)
         
     def test_get_repo(self):
-        response = self.GitHub.get_repo(self.url, delta=0)
+        response = self.GitHub.get_repo(self.url)
         print(response.__repr__())
 
 

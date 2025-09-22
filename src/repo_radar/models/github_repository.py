@@ -17,18 +17,39 @@ class Repository:
     dependencies: List[Dependency] = None
 
     def commit_count(self) -> int:
-        total = sum(len(b.commits or []) for b in (self.branches or [])) + len(self.default_branch_commits or [])
+        total = 0
+        
+        for branch in self.branches:
+            total += len(branch.commits or [])
+        total += len(self.default_branch_commits or [])
+        
         return total
 
     def issue_stats(self) -> dict:
-        open_issues = sum(1 for i in (self.issues or []) if i.state == "open")
-        closed_issues = sum(1 for i in (self.issues or []) if i.state == "closed")
+        open_issues = 0
+        closed_issues = 0
+        
+        for issue in self.issues:
+            if issue.state == "closed":
+                closed_issues += 1
+            elif issue.state == "open":
+                open_issues += 1
+
         return {"open": open_issues, "closed": closed_issues}
 
     def pull_stats(self) -> dict:
-        open_pulls = sum(1 for p in (self.pulls or []) if p.state == "open")
-        merged_pulls = sum(1 for p in (self.pulls or []) if p.merged_at)
-        closed_unmerged = sum(1 for p in (self.pulls or []) if p.state == "closed" and not p.merged_at)
+        open_pulls = 0
+        merged_pulls = 0
+        closed_unmerged = 0
+        
+        for pull in self.pulls:
+            if pull.merged_at:
+                merged_pulls += 1
+            elif pull.state == "open":
+                open_pulls += 1
+            elif pull.state == "closed" and not pull.merged_at:
+                closed_unmerged += 1
+                
         return {"open": open_pulls, "merged": merged_pulls, "closed_unmerged": closed_unmerged}
 
     def contributor_count(self) -> int:
@@ -47,6 +68,7 @@ class Repository:
             f"    License: {self.license.get('spdx_id') if self.license else 'None'}\n"
             f"    Branches:\n      {branches_str}\n"
             f"    Contributors:\n      {contributors_str}\n"
+            f"    Dependencies: {list(self.dependencies)}\n"
         )
 
 @dataclass

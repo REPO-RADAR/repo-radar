@@ -73,7 +73,7 @@ class RateLimitManager:
             elif reset_time == self.reset_time and remaining < self.remaining:  # Update remaining for current reset window if new value is worse than current value
                 self.remaining = remaining
 
-            print(f"remain: {self.remaining}")
+            print(f"Rate Limit remaining: {self.remaining}", end="\r", flush=True)
             self._headers_updated = True
     
             return True
@@ -146,3 +146,8 @@ class RateLimitManager:
             
         if not self._set_limits_from_headers(response):
             raise RuntimeError("Rate limit headers missing from response.")
+            
+    async def cancel_update(self):
+        """Safely terminate the rate limit manger so it doesn't throw an exception when exiting."""
+        self.logger.warning("Rate limit manager was cancelled.")
+        self._headers_updated = True

@@ -40,13 +40,13 @@ class GitHubUrl:
         """Return full API endpoint for contributors."""
         return f"{GITHUB_API_URL}/repos/{self.org_user}/{self.repo}/contributors"
     
-    def api_issues_path(self, since: int = None) -> str:
+    def api_issues_path(self, since: int = None, state: str = "all") -> str:
         """Repository issues list (open + closed depending on params).
         
         Args:
             since (int, optional): Unix timestamp to filter commits. Defaults to None.
         """
-        url =  f"{GITHUB_API_URL}/repos/{self.org_user}/{self.repo}/issues"
+        url = f"{GITHUB_API_URL}/repos/{self.org_user}/{self.repo}/issues?state={state}"
         url = self._append_since_to_path(url, since)
         return url
     
@@ -113,9 +113,20 @@ class GitHubUrl:
        url = self._append_since_to_path(url, since)
        return url
    
-    def _append_since_to_path(self, url: str, since: int):
-        if since is None or since < 1:
+    def _append_since_to_path(self, url: str, since: int | None) -> str:
+        """Append 'since' parameter to a URL if provided.
+        
+        Args:
+            - url (str): url to have since appended to.
+            - since (int): Unix timestamp to filter commits.
+
+        Returns:
+            - str: The API url with the since parameter appended
+        """
+        if since is None:
             return url
-        iso_time = datetime.fromtimestamp(since, tz=timezone.utc).isoformat()
-        url += f"?since={iso_time}"
-        return url
+        # Determine if URL already has a query string
+        separator = "&" if "?" in url else "?"
+        iso_since = datetime.fromtimestamp(since, tz=timezone.utc).isoformat()
+        return f"{url}{separator}since={iso_since}"
+

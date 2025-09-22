@@ -61,6 +61,13 @@ class TestAsyncGithubClient(unittest.TestCase):
             self.assertIsInstance(metadata.json(), dict)
             
         asyncio.run(run_test())
+        
+    def test_get_dependencies(self):
+        async def run_test():
+            data = await self.client.get_dependencies(self.url)
+            print(data.json())
+            
+        asyncio.run(run_test())
 
 
 if __name__ == "__main__":

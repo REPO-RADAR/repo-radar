@@ -7,7 +7,7 @@ import repo_radar.api.github_api as github_api
 from repo_radar.utils.rate_limit_manager import RateLimitManager
 import asyncio
 from requests import Response
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 import logging
 import time
 
@@ -107,9 +107,13 @@ class GitHubClient(AbstractGitHubApiClient):
             - HTTPError: If the response status is an error.
         """
         async with self.rate_manager:
-            response = await asyncio.to_thread(github_api.get_github_url, self.token, url)
-            await self.rate_manager.update_from_headers(response)
-            response.raise_for_status()
+            try:
+                response = await asyncio.to_thread(github_api.get_github_url, self.token, url)
+                await self.rate_manager.update_from_headers(response)
+                response.raise_for_status()
+            except RequestException:
+                self.rate_manager.cancel_update()
+                raise
         return response
 
     async def _get_paginated_github_page(self, url: str) -> Tuple[Response, Optional[str]]:
@@ -127,14 +131,18 @@ class GitHubClient(AbstractGitHubApiClient):
             - HTTPError: If the response status is an error.
         """
         async with self.rate_manager:
-            response, next_url = await asyncio.to_thread(
-                github_api.paginate_github_url,
-                self.token,
-                url=url,
-                per_page=GITHUB_MAX_PAGINATED
-            )
-            await self.rate_manager.update_from_headers(response)
-            response.raise_for_status()
+            try:
+                response, next_url = await asyncio.to_thread(
+                    github_api.paginate_github_url,
+                    self.token,
+                    url=url,
+                    per_page=GITHUB_MAX_PAGINATED
+                )
+                await self.rate_manager.update_from_headers(response)
+                response.raise_for_status()
+            except RequestException:
+                self.rate_manager.cancel_update()
+                raise
         return response, next_url
 
     async def _paginate_github_url(self, url: str) -> List[Response]:
@@ -178,7 +186,38 @@ class GitHubClient(AbstractGitHubApiClient):
                         )
                         raise e
                     raise
+                except RequestException:
+                    raise
         return responses
+    
+    async def _graphQL_query(self, owner: str, repo: str, query: str) -> Response:
+        """
+        Execute a GraphQL query against GitHub API within rate limit context.
+    
+        Args:
+            - owner (str): Repository owner
+            - repo (str): Repository name
+            - query (str): GraphQL query string
+    
+        Returns:
+            - Response: The HTTP response object.
+        """
+        variables = {"owner": owner, "repo": repo}
+    
+        async with self.rate_manager:
+            try:
+                response = await asyncio.to_thread(
+                    github_api.github_graphql_query,
+                    self.token,
+                    query,
+                    variables
+                )
+                await self.rate_manager.update_from_headers(response)
+                response.raise_for_status()
+            except RequestException:
+                self.rate_manager.cancel_update()
+                raise
+        return response
 
     async def get_languages(self, url: GitHubUrl) -> Response:
         """
@@ -303,3 +342,46 @@ class GitHubClient(AbstractGitHubApiClient):
             - Response: The HTTP response object.
         """
         return await self._get_github_page(url.api_repo_path())
+    
+    async def get_contents(self, url: GitHubUrl, path: str = "") -> Response:
+        """
+        Get the content data of a repository
+
+        Args:
+            - url (GitHubUrl): Repository URL wrapper.
+        Returns:
+            - Response: The HTTP response object.
+        """
+        return await self._get_github_page(url.api_contents_path(path))
+    
+    async def get_dependencies(self, url: GitHubUrl) -> Response:
+        """
+        Get the dependencies of a repository
+
+        Args:
+            - url (GitHubUrl): Repository URL wrapper.
+        Returns:
+            - Response: The HTTP response object.
+        """
+        query = """
+        query RepoDependencies($owner: String!, $repo: String!) {
+          repository(owner: $owner, name: $repo) {
+            dependencyGraphManifests(first: 10) {
+              nodes {
+                filename
+                dependencies(first: 50) {
+                  nodes {
+                    packageName
+                    requirements
+                    repository {
+                      nameWithOwner
+                      url
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """
+        return await self._graphQL_query(url.org_user, url.repo, query)

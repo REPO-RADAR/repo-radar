@@ -58,6 +58,7 @@ class GitHubService:
         for response in responses:
             response.raise_for_status()
             data = response.json() or []
+            
             for item in data:
                 commit_info = item.get("commit", {})
                 sha = item.get("sha")
@@ -68,11 +69,11 @@ class GitHubService:
                     author = User(login=author_data["login"], url=author_data["html_url"])
                 else:
                     author = User(login=author_info.get("name"), url=None)
-
                 
                 date = self._parse_datetime(author_info.get("date"))
                 message = commit_info.get("message")
                 commits.append(Commit(sha=sha, author=author, date=date, message=message))
+                
         return commits
 
         
@@ -82,9 +83,9 @@ class GitHubService:
     
         for response in responses:
             response.raise_for_status()
-            page_data = response.json() or []
+            data = response.json() or []
     
-            for item in page_data:
+            for item in data:
                 # Author
                 author_data = item.get("user", {})
                 author = User(login=author_data.get("login"), url=author_data.get("html_url"))
@@ -182,6 +183,7 @@ class GitHubService:
         for response in responses:
             response.raise_for_status()
             data = response.json() or []
+            
             for item in data:
                 contributors.append(
                     Contributor(
@@ -189,6 +191,7 @@ class GitHubService:
                         contributions=item.get("contributions", 0),                 
                     )
                 )
+                
         return contributors
         
     def get_branch_names(self, url: GitHubUrl) -> dict:
@@ -204,6 +207,7 @@ class GitHubService:
             for item in data:
                 name = item.get("name")
                 sha = item.get("commit", {}).get("sha")
+                
                 if name and sha:
                     branches[name] = sha
                     
@@ -261,7 +265,23 @@ class GitHubService:
         return commits
     
     def get_dependencies(self, url: GitHubUrl) -> List[Dependency]:
-        pass
+        response = self._run(self.client.get_dependencies(url))
+        data = response.json()
+    
+        dependencies: List[Dependency] = []
+    
+        manifests = data.get("data", {}).get("repository", {}).get(
+            "dependencyGraphManifests", {}
+        ).get("nodes", [])
+    
+        for manifest in manifests:
+            for dep in manifest.get("dependencies", {}).get("nodes", []):
+                name = dep.get("packageName")
+                version = dep.get("requirements")
+                if name:
+                    dependencies .append(Dependency(name=name, version=version))
+    
+        return dependencies
     
     def get_repo(self, url: GitHubUrl, delta: int = GITUB_DEFAULT_DELTA) -> Repository:
         repo: Repository = Repository()
@@ -274,6 +294,7 @@ class GitHubService:
         repo.contributors = self.get_contributors(url)
         repo.license = self.get_license(url)
         repo.languages = self.get_languages(url)
+        repo.dependencies = self.get_dependencies(url)
         
         return repo
         

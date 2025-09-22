@@ -21,6 +21,7 @@ LINK_HEADER_NEXT_REGEX = r'<([^>]+)>;\s*rel="next"'
 # URLs for github API
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_API_USER_ENDPOINT = "https://api.github.com/user" # User Endpoint
+GITHUB_GRAPHQL_URL = "https://api.github.com/graphql" # GraphQL Endpoint
 
 # Set GitHub token from environment variable
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")

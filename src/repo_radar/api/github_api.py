@@ -1,7 +1,7 @@
 import requests
 from requests import Response
 from requests.exceptions import HTTPError
-from repo_radar.config import GITHUB_API_USER_ENDPOINT, GITHUB_MAX_PAGINATED
+from repo_radar.config import GITHUB_API_USER_ENDPOINT, GITHUB_MAX_PAGINATED, GITHUB_GRAPHQL_URL
 from repo_radar.models.github_token import GitHubToken
 from repo_radar.utils.github_parsers import get_next_paginated_url
 from typing import Optional, Tuple
@@ -67,3 +67,22 @@ def paginate_github_url(token: GitHubToken, url: str, per_page: int = GITHUB_MAX
     response = requests.get(url, headers=token.to_header(), params=params)
     next_url = get_next_paginated_url(response)
     return response, next_url
+
+def github_graphql_query(token: GitHubToken, query: str, variables: dict = None) -> Response:
+    """
+    Executes a GraphQL query with GitHub API.
+    
+    Args:
+        - token (GitHubToken): GitHub Token Dataclass Object
+        - query (str): GraphQL query string
+        - variables (dict, optional): Variables for query
+    
+    Returns:
+        - response (requests.Response): The HTTP response object.
+    """
+    json_payload = {"query": query}
+    if variables:
+        json_payload["variables"] = variables
+
+    response = requests.post(GITHUB_GRAPHQL_URL, json=json_payload, headers=token.to_graphql_header())
+    return response
